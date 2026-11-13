@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tra cứu đơn hàng Traffic</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--primary:#6366f1;--primary-d:#4f46e5;--accent:#22d3ee;--ok:#22c55e;--danger:#ef4444;--bg:#050811;--card:rgba(15,20,40,.88);--border:rgba(99,102,241,.25);--text:#e2e8f0;--muted:#8391a7;--r:16px}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;justify-content:center;padding:32px 16px;
+background-image:radial-gradient(circle at 15% 10%,rgba(99,102,241,.18),transparent 45%),radial-gradient(circle at 85% 90%,rgba(34,211,238,.12),transparent 45%)}
+.wrap{width:100%;max-width:580px}
+.nav-top{display:flex;justify-content:flex-end;margin-bottom:10px}
+.nav-link{color:#94a3b8;font-size:13px;text-decoration:none;border:1px solid var(--border);padding:5px 12px;border-radius:99px;transition:.2s}
+.nav-link:hover{color:#fff;border-color:var(--accent)}
+h1{font-size:28px;font-weight:800;text-align:center;background:linear-gradient(90deg,#a5b4fc,#22d3ee);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{text-align:center;color:var(--muted);margin:6px 0 22px;font-size:14px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:24px;backdrop-filter:blur(18px);box-shadow:0 30px 60px rgba(0,0,0,.45);margin-bottom:18px}
+.search-row{display:flex;gap:10px}
+input{flex:1;padding:12px 14px;border-radius:10px;border:1px solid var(--border);background:rgba(5,8,17,.7);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:13px;outline:none}
+input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(99,102,241,.2)}
+button{padding:12px 18px;border:0;border-radius:10px;font:inherit;font-weight:700;color:#fff;cursor:pointer;background:linear-gradient(135deg,var(--primary),var(--primary-d))}
+button.ghost{background:transparent;border:1px solid var(--border);width:100%;margin-top:14px}
+.err{color:var(--danger);font-size:13px;margin-top:10px}
+.hidden{display:none}
+.badge{display:inline-block;padding:4px 12px;border-radius:99px;font-size:12px;font-weight:700}
+.b-wait{background:rgba(245,158,11,.15);color:#fbbf24}.b-ok{background:rgba(34,197,94,.15);color:#4ade80}.b-done{background:rgba(99,102,241,.2);color:#a5b4fc}
+.bar{height:12px;border-radius:99px;background:rgba(99,102,241,.15);overflow:hidden;margin:14px 0 6px}
+.bar>i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--primary),var(--accent));transition:width .5s}
+.kv{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid rgba(99,102,241,.12);font-size:14px}
+.kv b{font-family:'JetBrains Mono',monospace;font-weight:500;color:#fff;word-break:break-all;text-align:right}
+.center{text-align:center}.hint{font-size:12px;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="nav-top"><a class="nav-link" href="/boost">Web Demo /boost</a> <a class="nav-link" href="/order.html">+ Đặt đơn mới</a></div>
+  <h1>Theo dõi tiến độ đơn</h1>
+  <p class="sub">Cập nhật trực tiếp theo thời gian thực qua Socket.IO</p>
+
+  <div class="card">
+    <form class="search-row" id="lookupForm">
+      <input id="inputId" type="text" placeholder="Nhập mã đơn (ORD-...)" autocomplete="off">
+      <button type="submit">Tra cứu</button>
+    </form>
+    <div class="err hidden" id="errBox"></div>
+  </div>
+
+  <div class="card hidden" id="detailCard">
+    <div class="center">
+      <span class="badge b-wait" id="statusBadge">--</span>
+      <h2 style="margin-top:14px;font-size:36px" id="pct">0%</h2>
+    </div>
+    <div class="bar"><i id="barFill"></i></div>
+    <p class="center hint" id="progTxt" style="margin-bottom:14px">0 / 0 click</p>
+
+    <div class="kv"><span>Mã đơn</span><b id="dId"></b></div>
+    <div class="kv"><span>Mã chuyển khoản</span><b id="dCode"></b></div>
+    <div class="kv"><span>Link đích</span><b id="dUrl"></b></div>
+    <div class="kv"><span>Proxy</span><b id="dProxy"></b></div>
+    <div class="kv"><span>Số tiền</span><b id="dTotal"></b></div>
+    <div class="kv"><span>Chế độ chạy</span><b>Request nhẹ</b></div>
+    <div class="kv"><span>Thành công / Lỗi</span><b id="dCounts"></b></div>
+    <div class="kv"><span>Dự kiến kết thúc</span><b id="dEnd"></b></div>
+
+    <a id="payBtn" href="/order.html" class="hidden" style="display:block;text-align:center;margin-top:16px;padding:12px;border-radius:10px;background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;text-decoration:none;font-weight:700">Mở trang thanh toán VietQR</a>
+  </div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+let currentOrderId = new URLSearchParams(location.search).get('order') || localStorage.getItem('trafficOrderId') || '';
+let pollTimer = null, cachedOrder = null;
+
+const socket = typeof io === 'function' ? io() : null;
+if (socket) {
+  socket.on('connect', () => { if (currentOrderId) socket.emit('subscribe-order', currentOrderId); });
+  socket.on('payment-confirmed', d => { if (d && d.orderId === currentOrderId) fetchOrder(); });
+  socket.on('order-progress', p => {
+    if (!p || p.orderId !== currentOrderId || !cachedOrder) return;
+    cachedOrder.progress = p;
+    if (!cachedOrder.campaignId && p.campaignId) cachedOrder.campaignId = p.campaignId;
+    renderOrder(cachedOrder);
+  });
+}
+
+function renderOrder(o) {
+  cachedOrder = o;
+  $('detailCard').classList.remove('hidden');
+  $('errBox').classList.add('hidden');
+  const p = o.progress || { successVisits: o.successVisits || 0, failedVisits: o.failedVisits || 0, targetLimit: o.targetClicks, status: o.status };
+  const target = p.targetLimit || o.targetClicks || 1;
+  const success = p.successVisits || 0;
+  const failed = p.failedVisits || 0;
+  const pct = Math.min(100, Math.floor((success / target) * 100));
+
+  $('pct').textContent = pct + '%';
+  $('barFill').style.width = pct + '%';
+  $('progTxt').textContent = `${success.toLocaleString('vi-VN')} / ${target.toLocaleString('vi-VN')} click`;
+
+  const st = p.status || o.status;
+  const badge = $('statusBadge');
+  const payBtn = $('payBtn');
+  if (o.paymentStatus !== 'paid') {
+    badge.className = 'badge b-wait';
+    badge.textContent = 'Chờ thanh toán';
+    payBtn.classList.remove('hidden');
+    payBtn.style.display = 'block';
+    payBtn.href = '/order.html?order=' + encodeURIComponent(o.orderId);
+  } else if (['completed', 'expired', 'stopped'].includes(st)) {
+    badge.className = 'badge b-done';
+    badge.textContent = st === 'completed' ? 'Hoàn thành' : st === 'expired' ? 'Hết giờ' : 'Đã dừng';
+    payBtn.classList.add('hidden');
+    payBtn.style.display = 'none';
+    stopPolling();
+  } else {
+    badge.className = 'badge b-ok';
+    badge.textContent = 'Đã thanh toán · Đang chạy';
+    payBtn.classList.add('hidden');
+    payBtn.style.display = 'none';
+  }
+
+  $('dId').textContent = o.orderId;
+  $('dCode').textContent = o.orderCode;
+  $('dUrl').textContent = o.targetUrl;
+  $('dProxy').textContent = o.proxyKeyMasked || 'KiotProxy';
+  $('dTotal').textContent = (o.totalAmount || 0).toLocaleString('vi-VN') + 'đ';
+  $('dCounts').textContent = `${success} / ${failed}`;
+  $('dEnd').textContent = p.endTime ? new Date(p.endTime).toLocaleString('vi-VN') : '—';
+}
+
+async function fetchOrder() {
+  if (!currentOrderId) return;
+  try {
+    const r = await fetch('/api/orders/' + encodeURIComponent(currentOrderId));
+    const d = await r.json();
+    if (!r.ok || !d.success) {
+      $('detailCard').classList.add('hidden');
+      $('errBox').textContent = 'Không tìm thấy đơn hàng.';
+      $('errBox').classList.remove('hidden');
+      stopPolling();
+      return;
+    }
+    renderOrder(d.order);
+  } catch (e) {}
+}
+
+function startTracking(id) {
+  currentOrderId = id.trim();
+  if (!currentOrderId) return;
+  $('inputId').value = currentOrderId;
+  history.replaceState(null, '', '?order=' + encodeURIComponent(currentOrderId));
+  if (socket) socket.emit('subscribe-order', currentOrderId);
+  stopPolling();
+  fetchOrder();
+  pollTimer = setInterval(fetchOrder, 3000);
+}
+function stopPolling() { if (pollTimer) clearInterval(pollTimer); pollTimer = null; }
+
+$('lookupForm').onsubmit = e => {
+  e.preventDefault();
+  startTracking($('inputId').value);
+};
+
+if (currentOrderId) startTracking(currentOrderId);
+</script>
+</body>
+</html>

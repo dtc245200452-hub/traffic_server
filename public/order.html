@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Đặt dịch vụ Traffic</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--primary:#6366f1;--primary-d:#4f46e5;--accent:#22d3ee;--ok:#22c55e;--danger:#ef4444;--bg:#050811;--card:rgba(15,20,40,.88);--border:rgba(99,102,241,.25);--text:#e2e8f0;--muted:#8391a7;--r:16px}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;justify-content:center;padding:32px 16px;
+background-image:radial-gradient(circle at 15% 10%,rgba(99,102,241,.18),transparent 45%),radial-gradient(circle at 85% 90%,rgba(34,211,238,.12),transparent 45%)}
+.wrap{width:100%;max-width:560px}
+.nav-top{display:flex;justify-content:flex-end;margin-bottom:10px}
+.nav-link{color:#94a3b8;font-size:13px;text-decoration:none;border:1px solid var(--border);padding:5px 12px;border-radius:99px;transition:.2s}
+.nav-link:hover{color:#fff;border-color:var(--accent)}
+h1{font-size:28px;font-weight:800;text-align:center;background:linear-gradient(90deg,#a5b4fc,#22d3ee);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{text-align:center;color:var(--muted);margin:6px 0 24px;font-size:14px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:28px;backdrop-filter:blur(18px);box-shadow:0 30px 60px rgba(0,0,0,.45);animation:up .5s cubic-bezier(.16,1,.3,1) both}
+@keyframes up{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
+label{display:block;font-size:13px;font-weight:600;margin:16px 0 6px;color:#cbd5e1}
+input{width:100%;padding:12px 14px;border-radius:10px;border:1px solid var(--border);background:rgba(5,8,17,.7);color:var(--text);font:inherit;outline:none;transition:border .2s,box-shadow .2s}
+input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(99,102,241,.2)}
+.row{display:flex;gap:12px}.row>div{flex:1}
+.hint{font-size:12px;color:var(--muted);margin-top:4px}
+.price{margin-top:22px;padding:16px;border-radius:12px;background:rgba(99,102,241,.08);border:1px dashed var(--border)}
+.price div{display:flex;justify-content:space-between;font-size:14px;padding:3px 0;color:#cbd5e1}
+.price .total{border-top:1px solid var(--border);margin-top:8px;padding-top:10px;font-size:18px;font-weight:700;color:#fff}
+.price .total span:last-child{color:var(--accent)}
+button{width:100%;margin-top:20px;padding:14px;border:0;border-radius:12px;font:inherit;font-weight:700;font-size:16px;color:#fff;cursor:pointer;background:linear-gradient(135deg,var(--primary),var(--primary-d));transition:transform .15s,box-shadow .15s,opacity .2s;box-shadow:0 8px 24px rgba(99,102,241,.35)}
+button:hover{transform:translateY(-1px)}button:active{transform:scale(.98)}button:disabled{opacity:.5;cursor:not-allowed;transform:none}
+button.ghost{background:transparent;border:1px solid var(--border);box-shadow:none;margin-top:10px;font-size:14px;padding:10px}
+.err{color:var(--danger);font-size:13px;margin-top:12px;min-height:16px}
+.hidden{display:none}
+.qr{display:block;margin:12px auto;width:260px;max-width:100%;border-radius:12px;background:#fff;padding:8px}
+.kv{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid rgba(99,102,241,.12);font-size:14px}
+.kv b{font-family:'JetBrains Mono',monospace;font-weight:500;color:#fff;word-break:break-all;text-align:right}
+.cp{width:auto;margin:0;padding:4px 10px;font-size:12px;border-radius:8px;box-shadow:none;background:rgba(99,102,241,.25)}
+.badge{display:inline-block;padding:4px 12px;border-radius:99px;font-size:12px;font-weight:700}
+.b-wait{background:rgba(245,158,11,.15);color:#fbbf24}.b-ok{background:rgba(34,197,94,.15);color:#4ade80}
+.bar{height:12px;border-radius:99px;background:rgba(99,102,241,.15);overflow:hidden;margin:14px 0 6px}
+.bar>i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--primary),var(--accent));transition:width .6s}
+.center{text-align:center}
+.spin{width:14px;height:14px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;display:inline-block;animation:sp 1s linear infinite;vertical-align:-2px;margin-right:6px}
+@keyframes sp{to{transform:rotate(360deg)}}
+.timer{font-family:'JetBrains Mono',monospace;font-size:13px;color:#fbbf24;margin-top:6px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="nav-top"><a class="nav-link" href="/boost">Web Demo /boost</a> · <a class="nav-link" href="/track.html">Tra cứu đơn hàng</a></div>
+  <h1>Dịch vụ Click / Traffic</h1>
+  <p class="sub">40đ / click · 2.000đ / giờ hoàn thành · Chế độ Request siêu nhẹ</p>
+
+  <!-- Step 1: config -->
+  <div class="card" id="step1">
+    <label for="url">Link website cần chạy</label>
+    <input id="url" type="url" placeholder="https://example.com" autocomplete="off">
+    <label for="proxy">Key proxy KiotProxy</label>
+    <input id="proxy" type="text" placeholder="Dán key proxy của bạn" autocomplete="off">
+    <div class="row">
+      <div><label for="clicks">Số click</label><input id="clicks" type="number" min="1" step="1" value="100"></div>
+      <div><label for="hours">Hoàn thành trong (giờ)</label><input id="hours" type="number" min="0.1" step="0.5" value="1"></div>
+    </div>
+    <p class="hint">Thời gian lẻ được làm tròn lên giờ nguyên khi tính phí (1,5 giờ = 2 giờ).</p>
+    <div class="price">
+      <div><span id="pClick">0 click × 40đ</span><span id="vClick">0đ</span></div>
+      <div><span id="pHour">0 giờ × 2.000đ</span><span id="vHour">0đ</span></div>
+      <div class="total"><span>Tổng thanh toán</span><span id="vTotal">0đ</span></div>
+    </div>
+    <div class="err" id="err1"></div>
+    <button id="btnOrder">Tiếp tục thanh toán</button>
+  </div>
+
+  <!-- Step 2: payment -->
+  <div class="card hidden" id="step2">
+    <div class="center">
+      <span class="badge b-wait"><span class="spin"></span>Chờ thanh toán</span>
+      <div class="timer" id="countdown">Thời gian chờ: 15:00</div>
+    </div>
+    <img class="qr" id="qr" alt="Mã VietQR">
+    <div class="kv"><span>Ngân hàng</span><b id="bBank"></b></div>
+    <div class="kv"><span>Số tài khoản</span><b id="bAcc"></b><button class="cp" data-cp="bAcc">Chép</button></div>
+    <div class="kv"><span>Chủ tài khoản</span><b id="bName"></b></div>
+    <div class="kv"><span>Số tiền</span><b id="bAmount"></b><button class="cp" data-cp="bAmountRaw">Chép</button></div>
+    <div class="kv"><span>Nội dung CK</span><b id="bCode"></b><button class="cp" data-cp="bCode">Chép</button></div>
+    <p class="hint center" style="margin-top:14px">Chuyển <b>đúng số tiền</b> và <b>đúng nội dung</b>. Hệ thống tự động nhận diện và bắt đầu chạy ngay khi tiền về.</p>
+    <p class="hint center">Mã đơn của bạn: <span id="oid" style="font-family:'JetBrains Mono',monospace"></span> (<a id="trackLink" href="/track.html" style="color:var(--accent)">mở trang theo dõi</a>)</p>
+    <button class="ghost" id="btnCheckNow">Kiểm tra thanh toán ngay</button>
+    <button class="ghost" id="btnNewUnpaid">Tạo đơn mới</button>
+  </div>
+
+  <!-- Step 3: progress -->
+  <div class="card hidden" id="step3">
+    <div class="center"><span class="badge b-ok" id="runBadge">Đã thanh toán · Đang chạy</span></div>
+    <h2 class="center" style="margin-top:16px;font-size:36px" id="pct">0%</h2>
+    <div class="bar"><i id="barFill"></i></div>
+    <p class="center hint" id="progTxt"></p>
+    <div class="kv"><span>Mã đơn</span><b id="pCode"></b></div>
+    <div class="kv"><span>Link</span><b id="pUrl"></b></div>
+    <div class="kv"><span>Proxy</span><b id="pProxy"></b></div>
+    <div class="kv"><span>Kết thúc dự kiến</span><b id="pEnd"></b></div>
+    <button class="ghost" id="btnNew">Tạo đơn mới</button>
+  </div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+const CLICK = 40, HOUR = 2000;
+const fmt = n => n.toLocaleString('vi-VN') + 'đ';
+let orderId = new URLSearchParams(location.search).get('order') || localStorage.getItem('trafficOrderId');
+let timer = null, cdTimer = null, lastOrder = null;
+
+const socket = typeof io === 'function' ? io() : null;
+if (socket) {
+  socket.on('connect', () => { if (orderId) socket.emit('subscribe-order', orderId); });
+  socket.on('payment-confirmed', d => { if (d && d.orderId === orderId) poll(); });
+  socket.on('order-progress', p => {
+    if (!p || p.orderId !== orderId || !lastOrder) return;
+    lastOrder.progress = p;
+    if (!lastOrder.campaignId && p.campaignId) lastOrder.campaignId = p.campaignId;
+    render(lastOrder);
+  });
+}
+
+function calc() {
+  const c = Math.floor(Number($('clicks').value));
+  const h = Number($('hours').value);
+  const ok = Number.isInteger(c) && c >= 1 && isFinite(h) && h > 0;
+  const rh = ok ? Math.ceil(h) : 0, cc = ok ? c : 0;
+  $('pClick').textContent = `${cc.toLocaleString('vi-VN')} click × 40đ`;
+  $('vClick').textContent = fmt(cc * CLICK);
+  $('pHour').textContent = `${rh} giờ × 2.000đ`;
+  $('vHour').textContent = fmt(rh * HOUR);
+  $('vTotal').textContent = fmt(cc * CLICK + rh * HOUR);
+  return ok;
+}
+['clicks', 'hours'].forEach(i => $(i).addEventListener('input', calc));
+calc();
+
+function show(step) { ['step1', 'step2', 'step3'].forEach(s => $(s).classList.toggle('hidden', s !== step)); }
+
+function updateCountdown(createdAt) {
+  if (cdTimer) clearInterval(cdTimer);
+  const deadline = (createdAt || Date.now()) + 15 * 60000;
+  const tick = () => {
+    const left = Math.max(0, Math.floor((deadline - Date.now()) / 1000));
+    const m = String(Math.floor(left / 60)).padStart(2, '0');
+    const s = String(left % 60).padStart(2, '0');
+    $('countdown').textContent = left > 0 ? `Thời gian chờ gợi ý: ${m}:${s}` : 'Đang tiếp tục chờ xác nhận chuyển khoản...';
+  };
+  tick();
+  cdTimer = setInterval(tick, 1000);
+}
+
+$('btnOrder').onclick = async () => {
+  $('err1').textContent = '';
+  if (!calc()) { $('err1').textContent = 'Số click và thời gian phải lớn hơn 0.'; return; }
+  $('btnOrder').disabled = true;
+  try {
+    const r = await fetch('/api/orders', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({
+      targetUrl: $('url').value.trim(), proxyKey: $('proxy').value.trim(),
+      targetClicks: Number($('clicks').value), durationHours: Number($('hours').value) }) });
+    const d = await r.json();
+    if (!r.ok || !d.success) throw new Error((d.message || 'Không tạo được đơn').replace('Validation failed: ', ''));
+    orderId = d.orderId; localStorage.setItem('trafficOrderId', orderId);
+    history.replaceState(null, '', '?order=' + encodeURIComponent(orderId));
+    if (socket) socket.emit('subscribe-order', orderId);
+    startPolling();
+  } catch (e) { $('err1').textContent = e.message; }
+  $('btnOrder').disabled = false;
+};
+
+function render(o) {
+  lastOrder = o;
+  if (!o.campaignId) {
+    show('step2');
+    $('qr').src = o.vietQrUrl;
+    $('bBank').textContent = o.bankInfo.bankName || o.bankInfo.bankId;
+    $('bAcc').textContent = o.bankInfo.accountNumber;
+    $('bName').textContent = o.bankInfo.accountName;
+    $('bAmount').textContent = fmt(o.totalAmount);
+    $('bAmount').dataset.raw = o.totalAmount;
+    $('bCode').textContent = o.orderCode;
+    $('oid').textContent = o.orderId;
+    $('trackLink').href = '/track.html?order=' + encodeURIComponent(o.orderId);
+    updateCountdown(o.createdAt);
+    return;
+  }
+  if (cdTimer) { clearInterval(cdTimer); cdTimer = null; }
+  show('step3');
+  const p = o.progress || { successVisits: 0, targetLimit: o.targetClicks };
+  const pct = p.targetLimit ? Math.min(100, Math.floor(p.successVisits / p.targetLimit * 100)) : 0;
+  $('pct').textContent = pct + '%';
+  $('barFill').style.width = pct + '%';
+  $('progTxt').textContent = `${(p.successVisits || 0).toLocaleString('vi-VN')} / ${(p.targetLimit || o.targetClicks).toLocaleString('vi-VN')} click`;
+  $('pCode').textContent = o.orderCode;
+  $('pUrl').textContent = o.targetUrl;
+  $('pProxy').textContent = o.proxyKeyMasked || 'KiotProxy';
+  $('pEnd').textContent = p.endTime ? new Date(p.endTime).toLocaleString('vi-VN') : '—';
+  const done = p.status === 'completed' || p.status === 'expired' || p.status === 'stopped';
+  $('runBadge').textContent = done ? (p.status === 'completed' ? 'Hoàn thành' : p.status === 'expired' ? 'Hết giờ' : 'Đã dừng') : 'Đã thanh toán · Đang chạy';
+  if (done) stopPolling();
+}
+
+async function poll() {
+  if (!orderId) return;
+  try {
+    const r = await fetch('/api/orders/' + encodeURIComponent(orderId));
+    if (r.status === 404) { stopPolling(); localStorage.removeItem('trafficOrderId'); show('step1'); return; }
+    const d = await r.json();
+    if (d.success) render(d.order);
+  } catch (e) {}
+}
+function startPolling() { stopPolling(); poll(); timer = setInterval(poll, 3000); }
+function stopPolling() { if (timer) clearInterval(timer); timer = null; }
+
+document.addEventListener('click', e => {
+  const id = e.target.dataset && e.target.dataset.cp; if (!id) return;
+  const el = $(id === 'bAmountRaw' ? 'bAmount' : id);
+  const txt = id === 'bAmountRaw' ? el.dataset.raw : el.textContent;
+  navigator.clipboard.writeText(txt).then(() => { const o = e.target.textContent; e.target.textContent = 'Đã chép'; setTimeout(() => e.target.textContent = o, 1200); });
+});
+
+function resetNew() {
+  stopPolling();
+  if (cdTimer) { clearInterval(cdTimer); cdTimer = null; }
+  localStorage.removeItem('trafficOrderId');
+  orderId = null; lastOrder = null;
+  history.replaceState(null, '', location.pathname);
+  show('step1');
+}
+$('btnCheckNow').onclick = poll;
+$('btnNewUnpaid').onclick = resetNew;
+$('btnNew').onclick = resetNew;
+
+if (orderId) {
+  if (socket) socket.emit('subscribe-order', orderId);
+  startPolling();
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boost Traffic Demo — /boost (Không cần tạo tài khoản · 1 tài khoản Admin)</title>
+    <style>
+        :root {
+            --bg: #0b1120;
+            --panel: #111827;
+            --panel-2: #0f172a;
+            --border: #1f2937;
+            --border-strong: #334155;
+            --text: #e5e7eb;
+            --muted: #94a3b8;
+            --accent: #38bdf8;
+            --green: #10b981;
+            --amber: #f59e0b;
+            --red: #ef4444;
+            --indigo: #818cf8;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        a { color: var(--accent); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        code, .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+
+        .topbar {
+            background: var(--panel-2);
+            border-bottom: 1px solid var(--border);
+            padding: 12px 18px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+        .brand { display: flex; flex-direction: column; gap: 2px; }
+        .brand h1 { margin: 0; font-size: 17px; color: #f8fafc; }
+        .brand .sub { font-size: 12px; color: var(--muted); }
+        .top-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            border: 1px solid var(--border-strong);
+            background: #0f172a;
+            font-size: 12px;
+            color: var(--text);
+        }
+        .pill.ok { border-color: rgba(16,185,129,0.5); color: #6ee7b7; background: rgba(16,185,129,0.08); }
+        .pill.warn { border-color: rgba(245,158,11,0.5); color: #fcd34d; background: rgba(245,158,11,0.08); }
+        .pill.err { border-color: rgba(239,68,68,0.5); color: #fca5a5; background: rgba(239,68,68,0.08); }
+        .pill.info { border-color: rgba(56,189,248,0.5); color: #7dd3fc; background: rgba(56,189,248,0.08); }
+
+        .container { max-width: 1180px; margin: 0 auto; padding: 16px; }
+
+        .spec-strip {
+            background: #0f172a;
+            border: 1px solid var(--border-strong);
+            border-left: 3px solid var(--accent);
+            border-radius: 6px;
+            padding: 10px 14px;
+            margin-bottom: 14px;
+            font-size: 12.5px;
+            color: var(--muted);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 8px 16px;
+        }
+        .spec-strip strong { color: #f1f5f9; }
+
+        .tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 14px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 10px;
+        }
+        .tab-btn {
+            background: var(--panel);
+            color: var(--muted);
+            border: 1px solid var(--border-strong);
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+        }
+        .tab-btn.active {
+            background: rgba(56,189,248,0.14);
+            color: #e0f2fe;
+            border-color: var(--accent);
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1.05fr 0.95fr;
+            gap: 16px;
+            align-items: start;
+        }
+        @media (max-width: 900px) {
+            .grid-2 { grid-template-columns: 1fr; }
+        }
+
+        .card {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        .card h2 {
+            margin: 0 0 12px 0;
+            font-size: 15px;
+            color: #f8fafc;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+        .card h3 { margin: 12px 0 8px 0; font-size: 13.5px; color: #cbd5e1; }
+
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        @media (max-width: 560px) { .form-row { grid-template-columns: 1fr; } }
+
+        label { display: block; font-size: 12.5px; color: #cbd5e1; margin-bottom: 4px; font-weight: 600; }
+        .hint { font-size: 11.5px; color: var(--muted); margin-top: 3px; }
+        .field { margin-bottom: 12px; }
+        input[type="text"], input[type="url"], input[type="number"], input[type="password"], select, textarea {
+            width: 100%;
+            background: var(--panel-2);
+            color: #f8fafc;
+            border: 1px solid var(--border-strong);
+            border-radius: 5px;
+            padding: 8px 10px;
+            font-size: 13.5px;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: 2px solid rgba(56,189,248,0.4);
+            border-color: var(--accent);
+        }
+
+        .presets { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+        .preset-btn {
+            background: var(--panel-2);
+            color: var(--muted);
+            border: 1px solid var(--border-strong);
+            border-radius: 4px;
+            padding: 3px 8px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        .preset-btn:hover { color: #fff; border-color: var(--accent); }
+
+        .checks { display: flex; flex-wrap: wrap; gap: 14px; margin: 8px 0 12px 0; }
+        .check-item { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: #cbd5e1; cursor: pointer; }
+        .check-item input { width: auto; }
+
+        button.btn, .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            background: #1e293b;
+            color: #f8fafc;
+            border: 1px solid var(--border-strong);
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        button.btn:hover:not(:disabled) { border-color: var(--accent); }
+        button.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-primary { background: #0284c7; border-color: #38bdf8; color: #fff; }
+        .btn-primary:hover:not(:disabled) { background: #0369a1; }
+        .btn-success { background: #059669; border-color: #10b981; color: #fff; }
+        .btn-success:hover:not(:disabled) { background: #047857; }
+        .btn-danger { background: #991b1b; border-color: #ef4444; color: #fff; }
+        .btn-sm { padding: 4px 8px; font-size: 12px; }
+
+        .cost-box {
+            background: var(--panel-2);
+            border: 1px solid var(--border-strong);
+            border-radius: 6px;
+            padding: 10px 12px;
+            margin: 10px 0 12px 0;
+        }
+        .kv {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 4px 0;
+            font-size: 13px;
+            border-bottom: 1px dashed rgba(51,65,85,0.6);
+        }
+        .kv:last-child { border-bottom: none; }
+        .kv.total { font-size: 16px; font-weight: 700; color: #38bdf8; padding-top: 8px; }
+
+        .alert {
+            padding: 9px 12px;
+            border-radius: 6px;
+            margin-bottom: 12px;
+            font-size: 13px;
+            border: 1px solid;
+        }
+        .alert.err { background: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.45); color: #fecaca; }
+        .alert.ok { background: rgba(16,185,129,0.1); border-color: rgba(16,185,129,0.45); color: #a7f3d0; }
+        .alert.warn { background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.45); color: #fde68a; }
+        .alert.info { background: rgba(56,189,248,0.1); border-color: rgba(56,189,248,0.45); color: #bae6fd; }
+
+        .qr-layout { display: grid; grid-template-columns: 210px 1fr; gap: 14px; align-items: start; }
+        @media (max-width: 560px) { .qr-layout { grid-template-columns: 1fr; } }
+        .qr-box { background: #fff; padding: 8px; border-radius: 6px; text-align: center; }
+        .qr-box img { max-width: 100%; height: auto; display: block; margin: 0 auto; }
+
+        .progress-track {
+            width: 100%;
+            height: 14px;
+            background: #0f172a;
+            border: 1px solid var(--border-strong);
+            border-radius: 999px;
+            overflow: hidden;
+            margin: 8px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #0ea5e9, #10b981);
+            transition: width 0.25s ease;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin: 10px 0;
+        }
+        .stat-cell {
+            background: var(--panel-2);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 8px 10px;
+        }
+        .stat-cell .k { font-size: 11px; color: var(--muted); }
+        .stat-cell .v { font-size: 16px; font-weight: 700; color: #f8fafc; }
+
+        table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+        th, td {
+            text-align: left;
+            padding: 7px 8px;
+            border-bottom: 1px solid var(--border);
+            vertical-align: top;
+        }
+        th { color: var(--muted); font-weight: 600; background: var(--panel-2); }
+        .table-wrap { overflow-x: auto; max-height: 360px; overflow-y: auto; border: 1px solid var(--border); border-radius: 6px; }
+
+        .log-box {
+            background: #020617;
+            border: 1px solid var(--border-strong);
+            border-radius: 6px;
+            padding: 10px;
+            height: 220px;
+            overflow-y: auto;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+        }
+        .log-line { margin: 0 0 3px 0; }
+        .log-line.success { color: #34d399; }
+        .log-line.warn { color: #fbbf24; }
+        .log-line.error { color: #f87171; }
+        .log-line.system { color: #38bdf8; }
+        .log-line.info { color: #cbd5e1; }
+
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(2, 6, 23, 0.78);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            z-index: 100;
+        }
+        .modal-backdrop.open { display: flex; }
+        .modal-card {
+            width: 100%;
+            max-width: 400px;
+            background: var(--panel);
+            border: 1px solid var(--border-strong);
+            border-radius: 8px;
+            padding: 18px;
+        }
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+    <header class="topbar">
+        <div class="brand">
+            <h1>/boost — Web Demo Nền Tảng HTTP Traffic</h1>
+            <div class="sub">Khách dùng ngay <strong>không cần tạo tài khoản</strong> · Hệ thống chỉ có <strong>1 tài khoản Admin duy nhất</strong> để duyệt &amp; quản trị</div>
+        </div>
+        <div class="top-actions">
+            <span id="socket-pill" class="pill warn">Socket: Đang kết nối...</span>
+            <span id="auth-pill" class="pill info">Khách (Chưa đăng nhập)</span>
+            <button type="button" class="btn btn-sm btn-primary" id="open-login-btn">Đăng nhập 1 Tài khoản</button>
+            <button type="button" class="btn btn-sm hidden" id="logout-btn">Đăng xuất</button>
+            <a class="btn btn-sm" href="/track.html">Tra cứu độc lập</a>
+            <a class="btn btn-sm" href="/order.html">Trang đặt lẻ</a>
+            <a class="btn btn-sm" href="/">Dashboard gốc</a>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="spec-strip">
+            <div><strong>Thực thi đúng nền tảng:</strong> <span id="spec-mode">Request HTTP nhẹ (Axios + KiotProxy), giữ IP 2–5s, 0 trình duyệt</span></div>
+            <div><strong>Định giá backend:</strong> <span id="spec-pricing">40 VNĐ/click + Math.ceil(giờ) × 2.000 VNĐ</span></div>
+            <div><strong>Khóa tiền thanh toán:</strong> Chưa thanh toán (<code>pending_payment</code>) = <strong>0 click</strong> được phép chạy</div>
+            <div><strong>Phân quyền 1 tài khoản:</strong> Chỉ Admin trong <code>admin.json</code> mới duyệt đơn, xem toàn bộ đơn &amp; log worker</div>
+        </section>
+
+        <nav class="tabs">
+            <button type="button" class="tab-btn active" data-tab="customer">1. Đặt Boost &amp; Theo dõi (Không cần tài khoản)</button>
+            <button type="button" class="tab-btn" data-tab="admin" id="admin-tab-btn">2. Quản trị 1 Tài khoản (Admin)</button>
+        </nav>
+
+        <!-- TAB 1: CUSTOMER BOOST DEMO (NO ACCOUNT NEEDED) -->
+        <section id="tab-customer">
+            <div class="grid-2">
+                <!-- Left Column: Boost Configuration -->
+                <div>
+                    <div class="card">
+                        <h2>
+                            <span>Cấu hình Chiến dịch Boost</span>
+                            <span class="pill ok">Không cần đăng ký</span>
+                        </h2>
+                        <div id="order-form-msg"></div>
+                        <form id="boost-form">
+                            <div class="field">
+                                <label for="f-name">Tên chiến dịch (tùy chọn)</label>
+                                <input type="text" id="f-name" placeholder="Ví dụ: Boost landing page tháng 11">
+                            </div>
+
+                            <div class="field">
+                                <label for="f-url">URL đích (Target URL) *</label>
+                                <input type="url" id="f-url" placeholder="https://example.com/bai-viet" required>
+                                <div class="hint">Phải là URL hợp lệ bắt đầu bằng <code>http://</code> hoặc <code>https://</code>.</div>
+                            </div>
+
+                            <div class="field">
+                                <label for="f-proxy">KiotProxy Key *</label>
+                                <input type="text" id="f-proxy" placeholder="Kxxxxxxxxxxxxxxxxxxxx..." required>
+                                <div class="hint">Key xoay IP riêng cho đơn hàng (server sẽ ẩn bớt ký tự ở API công khai).</div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="field">
+                                    <label for="f-clicks">Số lượt click mục tiêu *</label>
+                                    <input type="number" id="f-clicks" value="100" min="1" step="1" required>
+                                </div>
+                                <div class="field">
+                                    <label for="f-hours">Thời gian chạy (giờ) *</label>
+                                    <input type="number" id="f-hours" value="1" min="0.0001" step="any" required>
+                                    <div class="presets">
+                                        <button type="button" class="preset-btn" data-hours="0.25">15p (0.25h)</button>
+                                        <button type="button" class="preset-btn" data-hours="0.5">30p (0.5h)</button>
+                                        <button type="button" class="preset-btn" data-hours="1">1h</button>
+                                        <button type="button" class="preset-btn" data-hours="1.5">1.5h</button>
+                                        <button type="button" class="preset-btn" data-hours="2">2h</button>
+                                        <button type="button" class="preset-btn" data-hours="6">6h</button>
+                                        <button type="button" class="preset-btn" data-hours="24">24h</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="field">
+                                    <label for="f-schedule">Kiểu phân bổ thời gian</label>
+                                    <select id="f-schedule">
+                                        <option value="smart">Smart (Theo hành vi người dùng theo giờ)</option>
+                                        <option value="even">Even (Chia đều tuyến tính)</option>
+                                        <option value="custom">Custom (Tùy chỉnh 7 khung giờ)</option>
+                                    </select>
+                                </div>
+                                <div class="field">
+                                    <label>Chế độ thực thi nền tảng</label>
+                                    <input type="text" value="request (Axios + KiotProxy nhẹ)" disabled>
+                                </div>
+                            </div>
+
+                            <div id="custom-blocks-box" class="cost-box hidden" style="margin-bottom:10px;">
+                                <div class="hint" style="margin-bottom:6px;font-weight:600;color:var(--text);">Cấu hình mật độ 7 khung giờ (TimeDistribution):</div>
+                                <div class="form-row">
+                                    <div class="field"><label for="cb-night">00h–06h (Đêm)</label><select id="cb-night"><option value="low" selected>Thấp (0.3x)</option><option value="medium">TB (1.0x)</option><option value="high">Cao (1.8x)</option></select></div>
+                                    <div class="field"><label for="cb-early">06h–09h (Sáng sớm)</label><select id="cb-early"><option value="low">Thấp (0.3x)</option><option value="medium" selected>TB (1.0x)</option><option value="high">Cao (1.8x)</option></select></div>
+                                    <div class="field"><label for="cb-morn">09h–12h (Sáng cao điểm)</label><select id="cb-morn"><option value="low">Thấp (0.3x)</option><option value="medium">TB (1.0x)</option><option value="high" selected>Cao (1.8x)</option></select></div>
+                                    <div class="field"><label for="cb-noon">12h–14h (Trưa)</label><select id="cb-noon"><option value="low">Thấp (0.3x)</option><option value="medium" selected>TB (1.0x)</option><option value="high">Cao (1.8x)</option></select></div>
+                                    <div class="field"><label for="cb-after">14h–18h (Chiều cao điểm)</label><select id="cb-after"><option value="low">Thấp (0.3x)</option><option value="medium">TB (1.0x)</option><option value="high" selected>Cao (1.8x)</option></select></div>
+                                    <div class="field"><label for="cb-eve">18h–22h (Tối cao điểm)</label><select id="cb-eve"><option value="low">Thấp (0.3x)</option><option value="medium">TB (1.0x)</option><option value="high" selected>Cao (1.8x)</option></select></div>
+                                    <div class="field"><label for="cb-late">22h–00h (Khuya)</label><select id="cb-late"><option value="low">Thấp (0.3x)</option><option value="medium" selected>TB (1.0x)</option><option value="high">Cao (1.8x)</option></select></div>
+                                </div>
+                            </div>
+
+                            <div class="checks">
+                                <label class="check-item">
+                                    <input type="checkbox" id="f-dedup" checked>
+                                    Chống trùng IP (dedupIp)
+                                </label>
+                                <label class="check-item">
+                                    <input type="checkbox" id="f-links" checked>
+                                    Truy cập link nội bộ ngẫu nhiên (randomLinks)
+                                </label>
+                            </div>
+
+                            <div class="cost-box" id="cost-box">
+                                <div class="kv"><span>Phí click (<span id="c-clicks">100</span> × <span id="c-rate">40</span> VNĐ)</span><strong id="c-click-fee">4.000 VNĐ</strong></div>
+                                <div class="kv"><span>Phí thời gian (làm tròn lên <span id="c-hours">1</span> giờ × <span id="c-hrate">2.000</span> VNĐ)</span><strong id="c-hour-fee">2.000 VNĐ</strong></div>
+                                <div class="kv total"><span>Tổng thanh toán</span><span id="c-total">6.000 VNĐ</span></div>
+                                <div id="cost-hint" class="hint hidden" style="color:var(--amber);margin-top:6px;"></div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary" id="submit-order-btn" style="width:100%;">
+                                Tạo đơn Boost &amp; Lấy mã VietQR (Không cần tài khoản)
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="card">
+                        <h2>
+                            <span>Xem trước Phân bổ Lịch chạy (TimeDistribution)</span>
+                            <span id="dist-interval-pill" class="pill">~0s/click</span>
+                        </h2>
+                        <div id="dist-capacity-alert"></div>
+                        <div class="table-wrap">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Khung giờ</th>
+                                        <th>Thời lượng</th>
+                                        <th>Lượt (Quota)</th>
+                                        <th>Tỷ trọng</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="dist-preview-body">
+                                    <tr><td colspan="4" style="color:var(--muted)">Nhập số click và số giờ để xem phân bổ.</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div id="dist-preview-footer" style="margin-top:8px;"></div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Lookup, Payment & Live Tracking -->
+                <div>
+                    <div class="card">
+                        <h2>
+                            <span>Tra cứu &amp; Đơn gần đây trên trình duyệt</span>
+                            <span class="hint" style="margin:0;">Lưu cục bộ — không cần tài khoản</span>
+                        </h2>
+                        <div style="display:flex; gap:8px; margin-bottom:10px;">
+                            <input type="text" id="lookup-order-id" placeholder="Nhập Mã đơn ORD-..." class="mono">
+                            <button type="button" class="btn" id="lookup-order-btn">Tải đơn</button>
+                        </div>
+                        <div id="lookup-order-msg"></div>
+                        <div id="recent-orders-wrap">
+                            <div class="hint">Chưa có đơn nào được tạo từ trình duyệt này.</div>
+                        </div>
+                    </div>
+
+                    <div class="card" id="active-order-empty">
+                        <h2>Trạng thái Thanh toán &amp; Tiến trình Thực thi</h2>
+                        <div class="alert info" style="margin-bottom:0;">
+                            Tạo đơn ở cột bên trái hoặc nhập mã <code>ORD-...</code> ở trên để xem VietQR thanh toán, trạng thái khóa an toàn trước thanh toán và tiến trình real-time qua Socket.IO.
+                        </div>
+                    </div>
+
+                    <div class="card hidden" id="active-order-panel">
+                        <h2>
+                            <span>Đơn: <code id="ao-id">--</code> (<code id="ao-code">--</code>)</span>
+                            <span id="ao-status-pill" class="pill warn">--</span>
+                        </h2>
+                        <div id="ao-notice"></div>
+
+                        <div class="kv"><span>Tên / URL đích</span><span id="ao-target" class="mono" style="word-break:break-all;text-align:right;max-width:70%;">--</span></div>
+                        <div class="kv"><span>Proxy Key (đã che)</span><code id="ao-proxy">--</code></div>
+                        <div class="kv"><span>Mục tiêu / Thời lượng / Kiểu</span><span id="ao-plan">--</span></div>
+                        <div class="kv"><span>Số tiền cần thanh toán</span><strong id="ao-amount" style="color:var(--accent);">--</strong></div>
+
+                        <!-- VietQR Payment Box -->
+                        <div id="ao-payment-box" style="margin-top:12px; padding-top:12px; border-top:1px solid var(--border);">
+                            <h3>Bước thanh toán VietQR (Đang khóa 0 click cho tới khi xác nhận)</h3>
+                            <div class="alert warn">
+                                <strong>Pre-Payment Lock:</strong> Theo đúng quy định nền tảng, đơn hàng <code>pending_payment</code> chưa được cấp phát campaign và chạy <strong>0 lượt truy cập</strong>.
+                            </div>
+                            <div class="qr-layout">
+                                <div class="qr-box">
+                                    <img id="ao-qr-img" class="hidden" alt="VietQR Thanh toán">
+                                    <div id="ao-qr-fallback" class="hidden" style="color:#0f172a;font-size:12px;padding:8px;">
+                                        Không tải được ảnh VietQR (kiểm tra mạng). Vui lòng chuyển khoản thủ công theo thông tin bên cạnh.
+                                    </div>
+                                    <div style="color:#0f172a;font-size:11.5px;margin-top:6px;">Hạn QR demo: <strong id="ao-countdown">15:00</strong></div>
+                                </div>
+                                <div>
+                                    <div class="kv"><span>Ngân hàng</span><strong id="ao-bank">--</strong></div>
+                                    <div class="kv">
+                                        <span>Số tài khoản</span>
+                                        <span><code id="ao-acc-num">--</code> <button type="button" class="btn btn-sm" id="copy-acc-btn">Copy</button></span>
+                                    </div>
+                                    <div class="kv"><span>Chủ tài khoản</span><span id="ao-acc-name">--</span></div>
+                                    <div class="kv">
+                                        <span>Số tiền chính xác</span>
+                                        <span><strong id="ao-pay-amount">--</strong> <button type="button" class="btn btn-sm" id="copy-amt-btn">Copy</button></span>
+                                    </div>
+                                    <div class="kv">
+                                        <span>Nội dung CK (Bắt buộc)</span>
+                                        <span><code id="ao-memo">--</code> <button type="button" class="btn btn-sm" id="copy-memo-btn">Copy</button></span>
+                                    </div>
+                                    <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:10px;">
+                                        <button type="button" class="btn" id="recheck-order-btn">Kiểm tra thanh toán</button>
+                                        <button type="button" class="btn btn-success hidden" id="inline-admin-confirm-btn">Admin: Xác nhận &amp; Chạy ngay</button>
+                                    </div>
+                                    <div id="guest-pay-hint" class="hint" style="margin-top:6px;">
+                                        Sau khi chuyển khoản đúng nội dung <code>TF...</code> (webhook tự động) hoặc bấm <strong>Đăng nhập 1 Tài khoản</strong> với quyền Admin để duyệt đơn thủ công.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Live Execution Progress Box -->
+                        <div id="ao-progress-box" style="margin-top:12px; padding-top:12px; border-top:1px solid var(--border);">
+                            <h3>Giám sát Thực thi Real-time (Campaign ID: <code id="ao-camp-id">Chưa kích hoạt</code>)</h3>
+                            <div class="progress-track"><div class="progress-fill" id="ao-progress-bar"></div></div>
+                            <div style="display:flex; justify-content:space-between; font-size:12px; color:var(--muted);">
+                                <span id="ao-progress-text">0 / 0 lượt thành công (0%)</span>
+                                <span id="ao-time-text">--</span>
+                            </div>
+                            <div class="stats-grid">
+                                <div class="stat-cell"><div class="k">Thành công</div><div class="v" id="st-success" style="color:var(--green);">0</div></div>
+                                <div class="stat-cell"><div class="k">Thất bại</div><div class="v" id="st-failed" style="color:var(--red);">0</div></div>
+                                <div class="stat-cell"><div class="k">Tổng thử</div><div class="v" id="st-total">0</div></div>
+                                <div class="stat-cell"><div class="k">IP duy nhất</div><div class="v" id="st-unique">0</div></div>
+                                <div class="stat-cell"><div class="k">IP bị trùng bỏ qua</div><div class="v" id="st-dup">0</div></div>
+                                <div class="stat-cell"><div class="k">Chế độ</div><div class="v" id="st-mode" style="font-size:13px;">request</div></div>
+                            </div>
+                            <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:8px;">
+                                <button type="button" class="btn" id="refresh-order-btn">Làm mới trạng thái</button>
+                                <button type="button" class="btn" id="download-report-btn">Tải báo cáo (.txt)</button>
+                                <button type="button" class="btn btn-danger hidden" id="inline-admin-stop-btn">Admin: Dừng chiến dịch</button>
+                            </div>
+                        </div>
+
+                        <div id="ao-admin-log-wrap" class="hidden" style="margin-top:12px;">
+                            <h3>Nhật ký Worker của đơn (chỉ hiển thị cho tài khoản Admin)</h3>
+                            <div class="log-box" id="ao-worker-log"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 2: SINGLE-ACCOUNT OPERATOR / ADMIN PANEL -->
+        <section id="tab-admin" class="hidden">
+            <div id="admin-gate-box" class="card">
+                <h2>Đăng nhập Tài khoản Vận hành Duy nhất (1 Tài khoản)</h2>
+                <div id="admin-gate-msg"></div>
+                <p style="color:var(--muted); margin-top:0;">
+                    Nền tảng không sử dụng hệ thống đăng ký nhiều user. Chỉ cần <strong>1 tài khoản Admin duy nhất</strong> (lưu trong <code>admin.json</code>) để xác nhận thanh toán, điều phối chiến dịch, xem log worker và cấu hình VietQR/Proxy.
+                </p>
+                <button type="button" class="btn btn-primary" id="gate-open-login-btn">Mở form đăng nhập Admin</button>
+            </div>
+
+            <div id="admin-workspace" class="hidden">
+                <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); margin-bottom:14px;">
+                    <div class="stat-cell"><div class="k">Tổng đơn</div><div class="v" id="adm-sum-total">0</div></div>
+                    <div class="stat-cell"><div class="k">Tổng doanh thu (đã thu)</div><div class="v" id="adm-sum-rev" style="color:var(--green);">0 VNĐ</div></div>
+                    <div class="stat-cell"><div class="k">Đã thanh toán</div><div class="v" id="adm-sum-paid">0</div></div>
+                    <div class="stat-cell"><div class="k">Chờ thanh toán</div><div class="v" id="adm-sum-pending" style="color:var(--amber);">0</div></div>
+                    <div class="stat-cell"><div class="k">Đang chạy</div><div class="v" id="adm-sum-running" style="color:var(--accent);">0</div></div>
+                    <div class="stat-cell"><div class="k">Hoàn tất / Dừng</div><div class="v" id="adm-sum-done">0</div></div>
+                </div>
+
+                <div class="card">
+                    <h2>
+                        <span>Quản lý Toàn bộ Đơn hàng &amp; Duyệt thanh toán</span>
+                        <div style="display:flex; gap:8px; align-items:center;">
+                            <select id="adm-filter" style="width:auto; padding:4px 8px; font-size:12px;">
+                                <option value="all">Tất cả trạng thái</option>
+                                <option value="pending_payment">Chờ thanh toán</option>
+                                <option value="running">Đang chạy</option>
+                                <option value="completed">Hoàn tất</option>
+                                <option value="stopped">Đã dừng / Hết giờ</option>
+                            </select>
+                            <button type="button" class="btn btn-sm" id="adm-refresh-orders-btn">Làm mới</button>
+                        </div>
+                    </h2>
+                    <div id="adm-action-msg"></div>
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Mã đơn / Code</th>
+                                    <th>URL đích &amp; Tên</th>
+                                    <th>Tiền</th>
+                                    <th>Thanh toán / Chạy</th>
+                                    <th>Tiến độ</th>
+                                    <th>Thao tác Admin</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adm-orders-body">
+                                <tr><td colspan="6" style="color:var(--muted)">Đang tải danh sách đơn...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="grid-2">
+                    <div class="card">
+                        <h2>Cấu hình Tài khoản Nhận tiền VietQR &amp; Webhook</h2>
+                        <div id="adm-paycfg-msg"></div>
+                        <form id="adm-paycfg-form">
+                            <div class="form-row">
+                                <div class="field">
+                                    <label for="cfg-bankid">Mã ngân hàng (VietQR BIN/Code)</label>
+                                    <input type="text" id="cfg-bankid" required placeholder="MB, VCB, TCB...">
+                                </div>
+                                <div class="field">
+                                    <label for="cfg-bankname">Tên hiển thị ngân hàng</label>
+                                    <input type="text" id="cfg-bankname" placeholder="MBBank">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="field">
+                                    <label for="cfg-accnum">Số tài khoản</label>
+                                    <input type="text" id="cfg-accnum" required>
+                                </div>
+                                <div class="field">
+                                    <label for="cfg-accname">Chủ tài khoản (IN HOA)</label>
+                                    <input type="text" id="cfg-accname" required>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="field">
+                                    <label for="cfg-template">Template VietQR</label>
+                                    <select id="cfg-template">
+                                        <option value="compact2">compact2</option>
+                                        <option value="compact">compact</option>
+                                        <option value="qr_only">qr_only</option>
+                                        <option value="print">print</option>
+                                    </select>
+                                </div>
+                                <div class="field">
+                                    <label for="cfg-secret">Webhook Secret (SePay/Casso)</label>
+                                    <input type="text" id="cfg-secret" placeholder="Để trống nếu chỉ duyệt tay">
+                                </div>
+                            </div>
+                            <div class="hint" style="margin-bottom:8px;">Webhook URL: <code id="cfg-webhook-url">/api/payment/webhook</code> (Header: <code>Authorization: Apikey &lt;secret&gt;</code>)</div>
+                            <button type="submit" class="btn btn-primary">Lưu cấu hình VietQR</button>
+                        </form>
+                    </div>
+
+                    <div class="card">
+                        <h2>Cấu hình Proxy Pool Mặc định (KiotProxy)</h2>
+                        <div id="adm-proxycfg-msg"></div>
+                        <form id="adm-proxycfg-form">
+                            <div class="form-row">
+                                <div class="field">
+                                    <label for="pcfg-region">Vùng Proxy</label>
+                                    <select id="pcfg-region">
+                                        <option value="random">random</option>
+                                        <option value="bac">bac</option>
+                                        <option value="trung">trung</option>
+                                        <option value="nam">nam</option>
+                                    </select>
+                                </div>
+                                <div class="field">
+                                    <label for="pcfg-cooldown">Cooldown (giây)</label>
+                                    <input type="number" id="pcfg-cooldown" min="0" value="14">
+                                </div>
+                            </div>
+                            <div class="field">
+                                <label for="pcfg-keys">Danh sách Key hệ thống (mỗi dòng 1 key)</label>
+                                <textarea id="pcfg-keys" rows="3"></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Lưu Proxy Pool</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>
+                        <span>Chiến dịch Worker trên Server</span>
+                        <button type="button" class="btn btn-sm" id="adm-refresh-campaigns-btn">Làm mới</button>
+                    </h2>
+                    <div id="adm-camp-msg"></div>
+                    <div style="overflow-x:auto;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID / Tên</th>
+                                    <th>URL đích</th>
+                                    <th>Trạng thái</th>
+                                    <th>Tiến độ</th>
+                                    <th>Hành động</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adm-campaigns-body">
+                                <tr><td colspan="5" style="color:var(--muted)">Chưa có chiến dịch nào.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>
+                        <span>Global Worker Console (Socket.IO Real-time)</span>
+                        <button type="button" class="btn btn-sm" id="clear-global-log-btn">Xóa log</button>
+                    </h2>
+                    <div class="log-box" id="adm-global-log"></div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Single-Account Admin Login Modal -->
+    <div class="modal-backdrop" id="login-modal" role="dialog" aria-modal="true" aria-labelledby="login-modal-title">
+        <div class="modal-card">
+            <h2 id="login-modal-title" style="margin:0 0 8px 0; font-size:16px;">Đăng nhập 1 Tài khoản Quản trị</h2>
+            <p class="hint" style="margin-bottom:12px;">
+                Dành riêng cho quản trị viên duy nhất trong <code>admin.json</code>. Khách hàng đặt &amp; theo dõi đơn trực tiếp không cần tài khoản.
+            </p>
+            <div id="login-modal-msg"></div>
+            <form id="boost-login-form">
+                <div class="field">
+                    <label for="login-user">Tên đăng nhập Admin</label>
+                    <input type="text" id="login-user" autocomplete="username" required>
+                </div>
+                <div class="field">
+                    <label for="login-pass">Mật khẩu</label>
+                    <input type="password" id="login-pass" autocomplete="current-password" required>
+                </div>
+                <label class="check-item" style="margin-bottom:14px;">
+                    <input type="checkbox" id="login-remember" checked> Ghi nhớ phiên đăng nhập
+                </label>
+                <div style="display:flex; justify-content:flex-end; gap:8px;">
+                    <button type="button" class="btn" id="close-login-btn">Đóng</button>
+                    <button type="submit" class="btn btn-primary" id="submit-login-btn">Đăng nhập</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/js/timeDistribution.js"></script>
+    <script src="/js/boost.js"></script>
+</body>
+</html>

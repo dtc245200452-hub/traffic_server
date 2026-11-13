@@ -1,0 +1,23 @@
+# Dependencies
+node_modules/
+
+# Local secrets & runtime configs
+admin.json
+sessions.json
+telegram_config.json
+proxy_config.json
+payment_config.json
+.env
+.env.*
+
+# Runtime generated data
+orders/
+campaigns/
+
+# Logs & OS files
+*.log
+.DS_Store
+Thumbs.db
+
+# Local workspace agent metadata
+.agents/
